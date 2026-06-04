@@ -56,9 +56,9 @@ CMake variables
 	!define OUTPUT_FILE_NAME "@CPACK_NSIS_PACKAGE_NAME_LC@_@CPACK_PACKAGE_VERSION@_setup.exe"
 	!define INST_DIR "@CPACK_TEMPORARY_DIRECTORY@"
 	!define REG_ROOT_KEY "Software"
-	!define REG_KEY "Software\PT Indexim Coalindo"
+	!define REG_KEY "Software\PTIndeximCoalindo"
 	!define REG_ROOT_KEY_UN "Software\Microsoft\Windows\CurrentVersion\Uninstall"
-	!define REG_KEY_UN "Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo @CPACK_PACKAGE_VERSION@"
+	!define REG_KEY_UN "Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo @CPACK_PACKAGE_VERSION@"
 	!define CSIDL_LOCAL_APPDATA "0x1C"
 	!define Explode "!insertmacro Explode"
 	!define unExplode "!insertmacro unExplode"
@@ -813,10 +813,10 @@ SectionGroupEnd
 
 ;# Write Config Section
 Section "!Set Config Section" SecSetConfig
-	;# Write settings for config file (aisnesia.ini) to HKLM Software\PT Indexim Coalindo
+	;# Write settings for config file (aisnesia.ini) to HKLM Software\PTIndeximCoalindo
 	${If} $CONFIG_SET_LANG == 1
 		;Call Write_Reg_Lang
-		WriteRegStr HKLM "Software\PT Indexim Coalindo" "InstallerLanguage" $REG_LANG
+		WriteRegStr HKLM "Software\PTIndeximCoalindo" "InstallerLanguage" $REG_LANG
 	${EndIf}
 
 	${If} $CHART_DIR_TMP_FILE == 1
@@ -838,7 +838,7 @@ Section "-Install Section" SecInstall
 
 	;# Registry Entries
 	SetShellVarContext all ;# make sure that we write to HKLM
-	;# HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo <DisplayVersion>
+	;# HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo <DisplayVersion>
 	WriteRegStr SHCTX "${REG_KEY_UN}" "DisplayName" "@CPACK_PACKAGE_NAME@ @CPACK_PACKAGE_VERSION@"
 	WriteRegStr SHCTX "${REG_KEY_UN}" "DisplayVersion" "@CPACK_PACKAGE_VERSION@"
 	WriteRegStr SHCTX "${REG_KEY_UN}" "CompareVersion" "$VERSION_DATE"
@@ -1014,7 +1014,7 @@ Function .onInit
 
 	;# Delete all temporary files created during the installation
 	Delete "$TEMP\aisnesia_*.tmp"
-	;DeleteRegKey HKCU "Software\PT Indexim Coalindo" ;# remove RegKey possibly exists - was used by versions 2.2.808 to 2.2.823
+	;DeleteRegKey HKCU "Software\PTIndeximCoalindo" ;# remove RegKey possibly exists - was used by versions 2.2.808 to 2.2.823
 
 	;# Check for unloaded Registry hive from previous installation attempt e.g. when installer crashed
 	StrCpy $0 0
@@ -1546,7 +1546,7 @@ FunctionEnd
 					${EndIf}
 				${Loop}
 				;# Path from Registry key wasn't found => delete RegKey
-				DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo_is1"
+				DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo_is1"
 				StrCpy $LM_VERSION_INST ""
 
 				done1:
@@ -1740,9 +1740,9 @@ FunctionEnd
 				${If} $LM_VERSION_INST != ""
 					StrCmp $0 $LM_VERSION_INST 0 cont
 					ClearErrors
-					DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo_is1"
+					DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo_is1"
 					IfErrors 0 +2
-					MessageBox MB_OK|MB_ICONEXCLAMATION "Error DeleteRegKey HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo_is1" ;#ON ERROR
+					MessageBox MB_OK|MB_ICONEXCLAMATION "Error DeleteRegKey HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo_is1" ;#ON ERROR
 					StrCpy $LM_VERSION ""
 					StrCpy $LM_VERSION_INST ""
 					StrCpy $LM_VERSION_UNINST ""
@@ -1762,7 +1762,7 @@ FunctionEnd
 					Call Update_Old_Installs
 				${EndIf}
 
-				;# Delete RegKeys in HKU Software\...\Uninstall\PT Indexim Coalindo
+				;# Delete RegKeys in HKU Software\...\Uninstall\PTIndeximCoalindo
 				${If} $R6 == 1
 					Call Update_Old_Uninstalls
 				${EndIf}
@@ -2378,7 +2378,7 @@ FunctionEnd
 					SendMessage $ListBox_SetConfig ${LB_ADDSTRING} 0 "STR:$R5"
 					Goto loop2
 			${Else}
-				ReadRegStr $0 HKLM "Software\PT Indexim Coalindo" "ChartDirs"
+				ReadRegStr $0 HKLM "Software\PTIndeximCoalindo" "ChartDirs"
 				StrCmp $0 "" cont2
 				${Explode} $3 ";" "$0"
 				${For} $1 1 $3
@@ -2760,17 +2760,17 @@ FunctionEnd
 Function Reg_Scan_Old_Versions_HKLM
 	;# Registry look-up
 	;# Versions prior to 2.2.727 write RegKey "PT Indexim Coalindo_is1" to "HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall"
-	ReadRegStr $0 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo_is1 "DisplayName"
+	ReadRegStr $0 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo_is1 "DisplayName"
 	${If} $0 != ""
 		${StrFilter} "$0" "31" "." " " $1
 		StrCpy $LM_VERSION "$1"
-		ReadRegStr $0 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo_is1 "UninstallString"
+		ReadRegStr $0 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo_is1 "UninstallString"
 		${StrFilter} "$0" "" "" "$\"" $2
 		${If} ${FileExists} "$2"
-			ReadRegStr $0 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo_is1 "QuietUninstallString"
+			ReadRegStr $0 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo_is1 "QuietUninstallString"
 			${StrFilter} "$0" "" "" "$\"" $3
 			StrCpy $LM_VERSION_UNINST $3
-			ReadRegStr $4 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo_is1 "InstallLocation"
+			ReadRegStr $4 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo_is1 "InstallLocation"
 			${TrimNewLines} $4 $4
 			${If} ${FileExists} "$4aisnesia.exe"
 			${AndIf} ${FileExists} "$4unins*.exe"
@@ -2784,7 +2784,7 @@ Function Reg_Scan_Old_Versions_HKLM
 				IntOp $OLD_INSTALLS $OLD_INSTALLS + 1
 				;StrCpy $VERSION_NEWER 1
 			${Else}
-				DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo_is1"
+				DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo_is1"
 				StrCpy $LM_VERSION ""
 				StrCpy $LM_VERSION_UNINST ""
 			${EndIf}
@@ -2956,14 +2956,14 @@ FunctionEnd
 Function Reg_Scan_Old_Versions_HKCU
 	;# Versions from 2.2.727 up to 2.2.xxxx write RegKey "PT Indexim Coalindo" to "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\"
 	;# and also RegKey "PT Indexim Coalindo <version>" to "HKCU\Software\aisnesia.org\"
-	;# Find latest installed version => it's the one found in "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo"
+	;# Find latest installed version => it's the one found in "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo"
 
-	ReadRegStr $0 HKU "$SID\Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo" "DisplayVersion"
+	ReadRegStr $0 HKU "$SID\Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo" "DisplayVersion"
 	${If} $0 != ""
 		StrCpy $latest_version $0
-		ReadRegStr $0 HKU "$SID\Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo" "DisplayIcon"
+		ReadRegStr $0 HKU "$SID\Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo" "DisplayIcon"
 		StrCpy $latest_pathexe $0
-		ReadRegStr $0 HKU "$SID\Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo" "UninstallString"
+		ReadRegStr $0 HKU "$SID\Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo" "UninstallString"
 		;StrCpy $CU_VERSION_UNINST $0
 		${WordFind} "$0" "\" "-2{*" $1
 		${If} ${FileExists} "$1\aisnesia.exe"
@@ -2978,11 +2978,11 @@ Function Reg_Scan_Old_Versions_HKCU
 
 			IfErrors done
 			FileWriteUTF16LE $R0 "$SID$\r$\n"
-			FileWriteUTF16LE $R0 "$SID\Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo$\r$\n"
+			FileWriteUTF16LE $R0 "$SID\Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo$\r$\n"
 			FileWriteUTF16LE $R0 "$1$\r$\n"
 			FileClose $R0
 		${Else}
-			DeleteRegKey HKU "$SID\Software\Microsoft\Windows\CurrentVersion\Uninstall\PT Indexim Coalindo"
+			DeleteRegKey HKU "$SID\Software\Microsoft\Windows\CurrentVersion\Uninstall\PTIndeximCoalindo"
 		${EndIf}
 	${EndIf}
 
@@ -3427,7 +3427,7 @@ Function Write_Reg_ChartDirs
 		Goto loop
 	done:
 		FileClose $R0
-		WriteRegStr HKLM "Software\PT Indexim Coalindo" "ChartDirs" $REG_CHARTDIRS
+		WriteRegStr HKLM "Software\PTIndeximCoalindo" "ChartDirs" $REG_CHARTDIRS
 	end:
 FunctionEnd
 
