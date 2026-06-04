@@ -1,0 +1,140 @@
+name: "Build PT Indexim Coalindo Installer"
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build:
+    name: "Windows Setup EXE"
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Gettext
+        shell: cmd
+        run: |
+          choco install gettext -y --no-progress
+          echo C:\Program Files\gettext-iconv\bin>> %GITHUB_PATH%
+
+      - name: Cache wxWidgets
+        id: cache-wx
+        uses: actions/cache@v4
+        with:
+          path: C:\wx
+          key: wx-3.2.9-msvc-win32-v3
+
+      - name: Download wxWidgets
+        if: steps.cache-wx.outputs.cache-hit != 'true'
+        shell: cmd
+        run: |
+          curl -L -o wx_dev.7z "https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.9/wxMSW-3.2.9_vc14x_Dev.7z"
+          curl -L -o wx_hdr.7z "https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.9/wxWidgets-3.2.9-headers.7z"
+          curl -L -o wx_dll.7z "https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.9/wxMSW-3.2.9_vc14x_ReleaseDLL.7z"
+          7z x -y -oC:\wx wx_dev.7z
+          7z x -y -oC:\wx wx_hdr.7z
+          7z x -y -oC:\wx wx_dll.7z
+          echo wxWidgets OK
+
+      - name: Cache Windows deps (buildwin)
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: cache\buildwin
+          key: buildwin-v0.5-workspace-v1
+
+      - name: Download Windows deps (buildwin)
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        shell: cmd
+        run: |
+          if not exist cache\buildwin mkdir cache\buildwin
+          curl -L -o deps.zip "https://github.com/OpenCPN/OCPNWindowsCoreBuildSupport/archive/refs/tags/v0.5.zip"
+          7z x -y deps.zip -odeps_tmp
+          xcopy /s /y /q deps_tmp\OCPNWindowsCoreBuildSupport-0.5\buildwin cache\buildwin\
+          echo Windows deps OK
+
+      - name: Fix patch line endings
+        shell: bash
+        run: |
+          find libs/libdnet -name "*.patch" | xargs -r sed -i 's/\r//'
+
+      - name: CMake Configure
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+          mkdir build
+          cd build
+          cmake -A Win32 -G "Visual Studio 17 2022" ^
+            -DwxWidgets_ROOT_DIR=C:\wx ^
+            -DwxWidgets_LIB_DIR=C:\wx\lib\vc14x_dll ^
+            -DwxWidgets_CONFIGURATION=mswu ^
+            -DOCPN_TARGET_TUPLE="msvc-wx32;10;x86_64" ^
+            -DOCPN_CI_BUILD=ON ^
+            -DOCPN_BUNDLE_WXDLLS=ON ^
+            -DOCPN_BUILD_TEST=OFF ^
+            -DCMAKE_BUILD_TYPE=Release ^
+            "-DGETTEXT_MSGFMT_EXECUTABLE=C:\Program Files\gettext-iconv\bin\msgfmt.exe" ^
+            "-DGETTEXT_MSGMERGE_EXECUTABLE=C:\Program Files\gettext-iconv\bin\msgmerge.exe" ^
+            "-DOCPNBUILDWIN=%GITHUB_WORKSPACE%\cache\buildwin" ^
+            ..
+          if errorlevel 1 exit /b 1
+
+      - name: Build
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+          cd build
+          cmake --build . --config Release --parallel %NUMBER_OF_PROCESSORS% -- /nologo /verbosity:minimal
+          if errorlevel 1 exit /b 1
+
+      - name: Copy wxWidgets DLLs to build output
+        shell: cmd
+        run: |
+          echo Copying wxWidgets DLLs...
+          copy /Y C:\wx\lib\vc14x_dll\wxbase32u_vc14x.dll      build\Release\
+          copy /Y C:\wx\lib\vc14x_dll\wxbase32u_net_vc14x.dll  build\Release\
+          copy /Y C:\wx\lib\vc14x_dll\wxbase32u_xml_vc14x.dll  build\Release\
+          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_core_vc14x.dll  build\Release\
+          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_adv_vc14x.dll   build\Release\
+          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_aui_vc14x.dll   build\Release\
+          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_gl_vc14x.dll    build\Release\
+          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_html_vc14x.dll  build\Release\
+          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_richtext_vc14x.dll build\Release\
+          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_webview_vc14x.dll  build\Release\
+          echo DLLs copied OK
+          dir build\Release\*.dll | find "wx"
+
+      - name: Package installer
+        shell: cmd
+        run: |
+          cd build
+          cmake --build . --config Release --target package
+          if errorlevel 1 exit /b 1
+
+      - name: Find installer file
+        shell: bash
+        run: |
+          mkdir -p output
+          INSTALLER=$(find build/_CPack_Packages -name "*.exe" 2>/dev/null | head -1)
+          if [ -z "$INSTALLER" ]; then
+            INSTALLER=$(find build -name "*setup*.exe" 2>/dev/null | head -1)
+          fi
+          echo "Installer: $INSTALLER"
+          cp "$INSTALLER" "output/PTIndeximCoalindo_2026.1_setup.exe"
+          ls -lh output/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PTIndeximCoalindo-2026.1-Setup
+          path: output/PTIndeximCoalindo_2026.1_setup.exe
+          retention-days: 30
+          if-no-files-found: error
