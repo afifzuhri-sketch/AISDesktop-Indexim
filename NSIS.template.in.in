@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------------------------------------------
-NSIS Installer script for PT Indexim Coalindo (Windows)
+NSIS Installer script for PTIndeximCoalindo (Windows)
 NSIS version 2.46
 Written by Gunther Pilz (Netsurfer) netsurfer@aisnesia.de
 -------------------------------------------------------------------------------------------------------
@@ -558,7 +558,7 @@ CMake variables
 	!define MUI_WELCOMEPAGE_TITLE_3LINES
 	!insertmacro MUI_PAGE_WELCOME
 
-	;# Serial Number page - PT Indexim Coalindo
+	;# Serial Number page - PTIndeximCoalindo
 	Page custom Page_SerialNumber Page_SerialNumber_Leave
 
 	;# License page
@@ -1736,7 +1736,7 @@ FunctionEnd
 				IfErrors 0 +2
 				MessageBox MB_OK|MB_ICONEXCLAMATION "Error RMDir: $0" ;#ON ERROR
 
-				;# If deleted installation was the one in the HKLM ...\PT Indexim Coalindo_is1 subkey => delete RegKey
+				;# If deleted installation was the one in the HKLM ...\PTIndeximCoalindo_is1 subkey => delete RegKey
 				${If} $LM_VERSION_INST != ""
 					StrCmp $0 $LM_VERSION_INST 0 cont
 					ClearErrors
@@ -2855,7 +2855,7 @@ Function Users_Appdata_Paths
 	StrCmp $2 "" done
 
 	StrCpy $5 "none"
-	;# check if an PT Indexim Coalindo config folder exists in the given path
+	;# check if an PTIndeximCoalindo config folder exists in the given path
 	${If} ${FileExists} "$2\@CPACK_NSIS_PACKAGE_NAME_LC@\aisnesia.ini"
 		ReadINIStr $3 "$2\@CPACK_NSIS_PACKAGE_NAME_LC@\aisnesia.ini" Directories S57DataLocation
 		${WordReplace} "$3" "\\" "\" "+" $4
@@ -3075,7 +3075,7 @@ Function Quick_Scan_Old_Versions
 FunctionEnd
 
 
-Function Found_PT Indexim Coalindo_Installation
+Function Found_PTIndeximCoalindo_Installation
 	Push $R0
 	Push $R1
 	${If} ${FileExists} "$R8\unins*.exe"
@@ -4348,7 +4348,7 @@ Var explArrCount
 	LangString LangDialog_Text ${LANG_ENGLISH} "Please select a language:"
 
    ;License dialog
-	LangString License_Message ${LANG_ENGLISH} "PT Indexim Coalindo is software libre. You are encouraged and legally \
+	LangString License_Message ${LANG_ENGLISH} "PTIndeximCoalindo is software libre. You are encouraged and legally \
         entitled to copy, reinstall, modify, and redistribute this program \
         for yourself and your friends under the terms of the GPL. $\r$\nSmooth sailing!"
 
@@ -4592,7 +4592,7 @@ Var explArrCount
 
 	LangString Msg_Path_Installation_Exists ${LANG_ENGLISH} "There already exists an installation of PT Indexim Coalindo in the given path.$\r$\nIf you wish to use this path, first uninstall the version. Or select another path for this installation."
 
-	LangString Msg_Uninstall_Old_Versions ${LANG_ENGLISH} "Setup has detected at least one older version of PT Indexim Coalindo which is not compatible with the new version control.$\r$\n\
+	LangString Msg_Uninstall_Old_Versions ${LANG_ENGLISH} "Setup has detected at least one older version of PTIndeximCoalindo which is not compatible with the new version control.$\r$\n\
 		It is recommended to first uninstall all of these installations (this does not affect your Config files) and clean-up the Registry.$\r$\n\
 		If you click Yes on the next page a listbox with all installation locations will be shown and you will have the possibility to select the installations you wish to uninstall.$\r$\n\
 		If you are unsure about possible other previous installations than those shown in the listbox, you can also perform a scan of the entire \
@@ -4630,7 +4630,7 @@ Var explArrCount
 
 
 ;# ═══════════════════════════════════════════════════════════════
-;# Serial Number Validation - PT Indexim Coalindo
+;# Serial Number Validation - PTIndeximCoalindo
 ;# ═══════════════════════════════════════════════════════════════
 
 Function Page_SerialNumber
