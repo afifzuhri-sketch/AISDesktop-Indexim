@@ -1,0 +1,6 @@
+name: aisnesia-dev
+title: PT Indexim Coalindo Programming Manual
+version: ~
+nav:
+- modules/ROOT/nav.adoc
+

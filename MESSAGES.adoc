@@ -1,0 +1,2 @@
+This file is replaced by manual contents at
+https://aisnesia-manuals.github.io/main/aisnesia-dev/plugin-messaging.html

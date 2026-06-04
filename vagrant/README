@@ -1,0 +1,11 @@
+Vagrant is used to develop AISNESIA in a virtual machine like VirtualBox.
+========================================================================
+
+Install VirtualBox and Vagrant. Then run in this folder :
+
+$ vagrant up
+<long output>
+
+$ vagrant ssh -c aisnesia
+
+That's it !

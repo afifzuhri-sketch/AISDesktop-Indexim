@@ -1,0 +1,91 @@
+----------------------------------------------------------------------
+1.  Overview
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+2.  Library Notes & Requirements
+----------------------------------------------------------------------
+
+a.  AISNESIA S57 ENC support works best with access to the OpenGL Utility
+library GLU.  GLU is used to tesselate large polygon areas into small
+triangles for faster display rendering.  If you cannot use, or do not have
+the OpenGL Utility library, you may choose to build AISNESIA with internal
+tesselator support.  The internal tesselator is sub-optimal compared to GLU,
+but it does work, if somewhat slower. OpenGLU is better.
+See the Build Notes section for applicable tesselator configuration options.
+
+
+b.  AISNESIA requires WxWidgets Version 3.0.0 or greater.  It has been tested
+with the following wxWidgets hosts:
+
+         GTK3                 (__WXGTK__)
+         MSWindows            (__WXMSW__)
+         MAC OSx              (__WXOSX__)
+
+
+----------------------------------------------------------------------
+3.  Platform Specific Build Notes
+----------------------------------------------------------------------
+
+Up to date build dependency instructions can be found at
+https://aisnesia-manuals.github.io/main/aisnesia-dev/, look for
+AISNESIA Development.
+
+On Debian/Ubuntu the canonical way to install build depencies is:
+
+    $ sudo apt install devscripts equivs
+    $ sudo mk-build-deps -i -r ci/control
+    $ sudo apt-get --allow-unauthenticated install -f
+
+------------------------
+Build AISNESIA
+------------------------
+
+Opencpn uses the cmake system. On Linux, the build is performed using:
+
+
+    $ cd {wherever the aisnesia base directory is}
+    $ mkdir build
+    $ cd build
+    $ cmake ..
+
+    $ make -j 4
+    $ sudo make install
+
+See the manual at https://aisnesia-manuals.github.io/main/aisnesia-dev/
+for build instructions on other platforms.
+
+
+----------------------------------------------------------------------
+4.  File and Directory Permissions under Linux
+----------------------------------------------------------------------
+
+It is sufficient for all other directories in /usr/share/aisnesia
+to have permissions 0755, i.e. exec/searchable and readable by all.
+
+----------------------------------------------------------------------
+5. Support File Locations
+----------------------------------------------------------------------
+
+a.  Opencpn requires numerous auxiliary data files.  These files
+are installed by the installer into the following locations by default:
+
+      Linux   - /usr/local/share/aisnesia/
+      Windows - \Program Files\aisnesia\
+      Mac     - /Users/YourUserName/openCPNfiles/
+
+The following directories exist within the above:
+         .../bitmaps                     - self evident
+         .../tcdata                      - tide and current location data
+         .../s57data                     - data files for S57ENC support
+         .../wvsdata                     - World Vector Shoreline data
+
+b.  Opencpn config files are expected in the following locations:
+
+      Linux   - ~/.aisnesia/aisnesia.conf
+      Windows - \Program Files\aisnesia\aisnesia.ini
+
+The installer will place nice default files for your use.  The first
+execution of aisnesia will update as needed.  If for some reason the
+config file is not found, aisnesia will offer to create a useable
+starting configuration.

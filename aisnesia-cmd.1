@@ -1,0 +1,82 @@
+.lf 1 aisnesia-cmd.1
+.\"
+.\" (C) Copyright 2022 Alec Leamas <leamas.alec@gmail.com>,
+.\"
+.TH Opencpn-cmd 1 "Dec 2022"
+
+.SH NAME
+aisnesia-cmd \- Chartplotter and GPS Navigation Software CLI interface
+.SH SYNOPSIS
+.B aisnesia-cmd
+.RI [ options ]
+.SH DESCRIPTION
+aisnesia-cmd provides command line  access to some basic functionality
+available in aisnesia.
+It is in alpha state.
+.P
+Currently, aisnesia-cmd supports various functions to load plugins and display
+some configuration information.
+
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help info.
+
+.SH RUNNING
+
+
+.SS Debian/Ubuntu
+
+After a build aisnesia-cmd is available in the build directory and could
+be run directly:
+.PP
+.nf
+    $ cd build
+    $ cmake ...
+    $ make
+    $ ./aisnesia-cmd --help
+.fi
+.PP
+After `sudo make install` it is globally available.
+aisnesia-cmd is included in the .deb packages.
+
+.SS Flatpak
+
+Make a local Flatpak build as described in
+https://aisnesia-manuals.github.io/main/aisnesia-dev/linux.html#_flatpak
+This will also make a local installation.
+.PP
+aisnesia-cmd needs to run in the Flatpak sandbox. Do:
+.PP
+.nf
+    $ flatpak run --command=bash --devel org.aisnesia.AISNESIA
+    \[u1F4E6] aisnesia-cmd --help
+.fi
+
+.SS MacOS
+After a local build followed by `sudo make install` aisnesia-cmd is available in
+/usr/local/bin/.
+Run using:
+.PP
+.nf
+    $ /usr/local/bin/AISNESIA.app/Contents/MacOS/aisnesia-cmd --help
+.fi
+
+The installer installs it under Applications. Run using:
+.PP
+.nf
+    $ /Applications/AISNESIA.app/Contents/MacOS/aisnesia-cmd --help
+.fi
+.SS Windows
+
+The NSIS installer installs aisnesia-cmd in the installation directory.
+In a standard install do:
+.PP
+.nf
+    > cd "\\Program Files (x86)\\AISNESIA"
+    > aisnesia-cmd --help
+.fi
+
+.SH SEE ALSO
+.br
+aisnesia(1)
