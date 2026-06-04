@@ -42,7 +42,6 @@ jobs:
           7z x -y -oC:\wx wx_dev.7z
           7z x -y -oC:\wx wx_hdr.7z
           7z x -y -oC:\wx wx_dll.7z
-          echo wxWidgets OK
 
       - name: Cache Windows deps (buildwin)
         id: cache-deps
@@ -59,7 +58,6 @@ jobs:
           curl -L -o deps.zip "https://github.com/OpenCPN/OCPNWindowsCoreBuildSupport/archive/refs/tags/v0.5.zip"
           7z x -y deps.zip -odeps_tmp
           xcopy /s /y /q deps_tmp\OCPNWindowsCoreBuildSupport-0.5\buildwin cache\buildwin\
-          echo Windows deps OK
 
       - name: Fix patch line endings
         shell: bash
@@ -95,10 +93,9 @@ jobs:
           cmake --build . --config Release --parallel %NUMBER_OF_PROCESSORS% -- /nologo /verbosity:minimal
           if errorlevel 1 exit /b 1
 
-      - name: Copy wxWidgets DLLs to build output
+      - name: Copy wxWidgets DLLs
         shell: cmd
         run: |
-          echo Copying wxWidgets DLLs...
           copy /Y C:\wx\lib\vc14x_dll\wxbase32u_vc14x.dll      build\Release\
           copy /Y C:\wx\lib\vc14x_dll\wxbase32u_net_vc14x.dll  build\Release\
           copy /Y C:\wx\lib\vc14x_dll\wxbase32u_xml_vc14x.dll  build\Release\
@@ -110,14 +107,17 @@ jobs:
           copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_richtext_vc14x.dll build\Release\
           copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_webview_vc14x.dll  build\Release\
           echo DLLs copied OK
-          dir build\Release\*.dll | find "wx"
 
-      - name: Package installer
+      - name: Package installer (CPack/NSIS)
         shell: cmd
         run: |
           cd build
           cmake --build . --config Release --target package
-          if errorlevel 1 exit /b 1
+          if errorlevel 1 (
+            echo === NSIS ERROR LOG ===
+            type _CPack_Packages\win32\NSIS\NSISOutput.log
+            exit /b 1
+          )
 
       - name: Find installer file
         shell: bash
