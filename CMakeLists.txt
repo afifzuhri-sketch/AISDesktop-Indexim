@@ -70,7 +70,7 @@ else ()
   set(PACKAGE_NAME aisnesia)
 endif ()
 
-project(PT Indexim Coalindo)
+project(PTIndeximCoalindo)
 
 if (NOT DEFINED OCPN_VERBOSE OR OCPN_VERBOSE)
   set(CMAKE_VERBOSE_MAKEFILE ON)
