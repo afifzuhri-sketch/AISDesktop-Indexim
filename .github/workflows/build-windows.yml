@@ -29,21 +29,27 @@ jobs:
         shell: powershell
         run: |
           $content = Get-Content NSIS.template.in.in -Raw
-          # Fix 1: Remove spaces from identifiers
           $content = $content -replace 'PT Indexim Coalindo', 'PTIndeximCoalindo'
-          # Fix 2: MB_ICONERROR is not valid in NSIS, use MB_ICONSTOP
           $content = $content -replace 'MB_ICONERROR', 'MB_ICONSTOP'
           $content | Set-Content NSIS.template.in.in -NoNewline
           Write-Host "NSIS template fixed OK"
 
-      - name: Restore NSIS Include files (fix encoding)
+      - name: Restore NSIS Include files
         shell: cmd
         run: |
-          echo Restoring original NSIS Unicode include files...
           curl -L -o buildwin_orig.zip "https://github.com/OpenCPN/OCPNWindowsCoreBuildSupport/archive/refs/tags/v0.5.zip"
           7z x -y buildwin_orig.zip -obuildwin_orig_tmp
           xcopy /s /y /q "buildwin_orig_tmp\OCPNWindowsCoreBuildSupport-0.5\buildwin\NSIS_Unicode\Include" "buildwin\NSIS_Unicode\Include\"
           echo NSIS Include files restored OK
+
+      - name: Add wxWidgets DLL install rules
+        shell: powershell
+        run: |
+          $rules = @"
+          `n# wxWidgets DLLs for packaging`ninstall(FILES`n  "C:/wx/lib/vc14x_dll/wxbase32u_vc14x.dll"`n  "C:/wx/lib/vc14x_dll/wxbase32u_net_vc14x.dll"`n  "C:/wx/lib/vc14x_dll/wxbase32u_xml_vc14x.dll"`n  "C:/wx/lib/vc14x_dll/wxmsw32u_core_vc14x.dll"`n  "C:/wx/lib/vc14x_dll/wxmsw32u_adv_vc14x.dll"`n  "C:/wx/lib/vc14x_dll/wxmsw32u_aui_vc14x.dll"`n  "C:/wx/lib/vc14x_dll/wxmsw32u_gl_vc14x.dll"`n  "C:/wx/lib/vc14x_dll/wxmsw32u_html_vc14x.dll"`n  "C:/wx/lib/vc14x_dll/wxmsw32u_richtext_vc14x.dll"`n  "C:/wx/lib/vc14x_dll/wxmsw32u_webview_vc14x.dll"`n  DESTINATION ".")
+          "@
+          Add-Content CMakeLists.txt $rules
+          Write-Host "wx DLL rules added"
 
       - name: Cache wxWidgets
         id: cache-wx
@@ -63,14 +69,14 @@ jobs:
           7z x -y -oC:\wx wx_hdr.7z
           7z x -y -oC:\wx wx_dll.7z
 
-      - name: Cache Windows deps (buildwin)
+      - name: Cache Windows deps
         id: cache-deps
         uses: actions/cache@v4
         with:
           path: cache\buildwin
           key: buildwin-v0.5-workspace-v1
 
-      - name: Download Windows deps (buildwin)
+      - name: Download Windows deps
         if: steps.cache-deps.outputs.cache-hit != 'true'
         shell: cmd
         run: |
@@ -113,22 +119,7 @@ jobs:
           cmake --build . --config Release --parallel %NUMBER_OF_PROCESSORS% -- /nologo /verbosity:minimal
           if errorlevel 1 exit /b 1
 
-      - name: Copy wxWidgets DLLs
-        shell: cmd
-        run: |
-          copy /Y C:\wx\lib\vc14x_dll\wxbase32u_vc14x.dll      build\Release\
-          copy /Y C:\wx\lib\vc14x_dll\wxbase32u_net_vc14x.dll  build\Release\
-          copy /Y C:\wx\lib\vc14x_dll\wxbase32u_xml_vc14x.dll  build\Release\
-          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_core_vc14x.dll  build\Release\
-          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_adv_vc14x.dll   build\Release\
-          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_aui_vc14x.dll   build\Release\
-          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_gl_vc14x.dll    build\Release\
-          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_html_vc14x.dll  build\Release\
-          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_richtext_vc14x.dll build\Release\
-          copy /Y C:\wx\lib\vc14x_dll\wxmsw32u_webview_vc14x.dll  build\Release\
-          echo DLLs copied OK
-
-      - name: Package installer (CPack/NSIS)
+      - name: Package installer
         shell: cmd
         run: |
           cd build
