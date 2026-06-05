@@ -28,26 +28,19 @@ jobs:
       - name: Fix NSIS template spaces
         shell: powershell
         run: |
-          Write-Host "Fixing NSIS template identifier spaces..."
           $content = Get-Content NSIS.template.in.in -Raw
           $content = $content -replace 'PT Indexim Coalindo', 'PTIndeximCoalindo'
           $content | Set-Content NSIS.template.in.in -NoNewline
           Write-Host "NSIS template fixed OK"
-          # Verify no more spaces in identifiers
-          $check = Select-String -Path NSIS.template.in.in -Pattern "PT Indexim Coalindo"
-          if ($check) { Write-Host "WARNING: still found PT Indexim Coalindo" }
-          else { Write-Host "OK: no more spaces found" }
 
-      - name: Fix NSIS language files spaces
-        shell: powershell
+      - name: Restore NSIS Include files (fix encoding)
+        shell: cmd
         run: |
-          Write-Host "Fixing NSIS language files..."
-          Get-ChildItem -Path "buildwin/NSIS_Unicode/Language files" -Filter "*.nsh.in" | ForEach-Object {
-            $content = Get-Content $_.FullName -Raw
-            $content = $content -replace 'PT Indexim Coalindo', 'PTIndeximCoalindo'
-            $content | Set-Content $_.FullName -NoNewline
-          }
-          Write-Host "Language files fixed OK"
+          echo Restoring original NSIS Unicode include files...
+          curl -L -o buildwin_orig.zip "https://github.com/OpenCPN/OCPNWindowsCoreBuildSupport/archive/refs/tags/v0.5.zip"
+          7z x -y buildwin_orig.zip -obuildwin_orig_tmp
+          xcopy /s /y /q "buildwin_orig_tmp\OCPNWindowsCoreBuildSupport-0.5\buildwin\NSIS_Unicode\Include" "buildwin\NSIS_Unicode\Include\"
+          echo NSIS Include files restored OK
 
       - name: Cache wxWidgets
         id: cache-wx
