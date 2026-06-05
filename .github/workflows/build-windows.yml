@@ -25,11 +25,14 @@ jobs:
           choco install gettext -y --no-progress
           echo C:\Program Files\gettext-iconv\bin>> %GITHUB_PATH%
 
-      - name: Fix NSIS template spaces
+      - name: Fix NSIS template
         shell: powershell
         run: |
           $content = Get-Content NSIS.template.in.in -Raw
+          # Fix 1: Remove spaces from identifiers
           $content = $content -replace 'PT Indexim Coalindo', 'PTIndeximCoalindo'
+          # Fix 2: MB_ICONERROR is not valid in NSIS, use MB_ICONSTOP
+          $content = $content -replace 'MB_ICONERROR', 'MB_ICONSTOP'
           $content | Set-Content NSIS.template.in.in -NoNewline
           Write-Host "NSIS template fixed OK"
 
